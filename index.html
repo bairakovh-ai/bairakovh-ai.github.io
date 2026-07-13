@@ -113,8 +113,8 @@
     min-height:46px;
   }
   .daybtns button .ic{display:block;font-size:16px;margin-bottom:1px;}
-  .day[data-state="work"] .b-work{background:var(--green);border-color:var(--green);color:#fff;}
-  .day[data-state="off"] .b-off{background:var(--red);border-color:var(--red);color:#fff;}
+  .b-work.active{background:var(--green);border-color:var(--green);color:#fff;}
+  .b-off.active{background:var(--red);border-color:var(--red);color:#fff;}
 
   /* summary bar */
   .totalbar{
@@ -336,7 +336,6 @@
 
       var row = document.createElement("div");
       row.className = "day" + (isWeekend ? " weekend" : "") + (isCurMonth && now.getDate() === d ? " today" : "");
-      if(state) row.setAttribute("data-state", state);
       row.setAttribute("data-day", d);
 
       var num = document.createElement("div");
@@ -346,15 +345,15 @@
       var btns = document.createElement("div");
       btns.className = "daybtns";
       var bWork = document.createElement("button");
-      bWork.className = "b-work";
+      bWork.className = "b-work" + (state === "work" ? " active" : "");
       bWork.innerHTML = "<span class='ic'>✓</span>Travaillé";
       var bOff = document.createElement("button");
-      bOff.className = "b-off";
+      bOff.className = "b-off" + (state === "off" ? " active" : "");
       bOff.innerHTML = "<span class='ic'>✕</span>Pas travaillé";
 
       (function(dayNum){
-        bWork.addEventListener("click", function(){ setDay(dayNum, "work", row); });
-        bOff.addEventListener("click", function(){ setDay(dayNum, "off", row); });
+        bWork.addEventListener("click", function(){ setDay(dayNum, "work", bWork, bOff); });
+        bOff.addEventListener("click", function(){ setDay(dayNum, "off", bWork, bOff); });
       })(d);
 
       btns.appendChild(bWork);
@@ -365,17 +364,19 @@
     }
   }
 
-  function setDay(day, newState, row){
+  function setDay(day, newState, bWork, bOff){
     if(!current.person) return;
     var entry = getMonthEntry(current.person, current.year, current.month);
     var cur = entry[String(day)] || "";
     if(cur === newState){
       // toggle off — recliquer pour annuler
       delete entry[String(day)];
-      row.removeAttribute("data-state");
+      bWork.classList.remove("active");
+      bOff.classList.remove("active");
     }else{
       entry[String(day)] = newState;
-      row.setAttribute("data-state", newState);
+      bWork.classList.toggle("active", newState === "work");
+      bOff.classList.toggle("active", newState === "off");
     }
     save();
     if(resultBox.classList.contains("show")) computeTotal(); // live update if shown
