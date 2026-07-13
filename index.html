@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BAI Pointage">
+<meta name="theme-color" content="#1b2a4a">
+<title>BAI - Pointage</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='36' fill='%231b2a4a'/%3E%3Ctext x='90' y='118' font-family='Arial,sans-serif' font-size='72' font-weight='bold' fill='%23ffffff' text-anchor='middle'%3EBAI%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --navy:#1b2a4a;
+    --navy-light:#26406b;
+    --teal:#1f9e8f;
+    --green:#1f9d55;
+    --green-dark:#167a41;
+    --red:#c0392b;
+    --gray:#8a94a6;
+    --bg:#f4f6f9;
+    --card:#ffffff;
+    --line:#e3e8f0;
+    --text:#1f2733;
+    --muted:#6b7686;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding-bottom:96px;
+    -webkit-text-size-adjust:100%;
+  }
+  header{
+    background:var(--navy);
+    color:#fff;
+    padding:calc(env(safe-area-inset-top) + 16px) 16px 16px;
+    text-align:center;
+    box-shadow:0 2px 8px rgba(0,0,0,.15);
+    position:sticky;top:0;z-index:10;
+  }
+  header .brand{display:flex;align-items:center;justify-content:center;gap:10px;}
+  header .logo{
+    background:#fff;color:var(--navy);font-weight:800;
+    border-radius:8px;padding:4px 8px;font-size:18px;letter-spacing:1px;
+  }
+  header h1{margin:0;font-size:19px;font-weight:600;}
+  header p{margin:4px 0 0;font-size:13px;opacity:.75;}
+
+  .section{padding:14px 14px 0;max-width:640px;margin:0 auto;}
+  .card{
+    background:var(--card);border:1px solid var(--line);
+    border-radius:14px;padding:14px;margin-bottom:14px;
+    box-shadow:0 1px 3px rgba(20,30,50,.05);
+  }
+  .label{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px;font-weight:600;}
+
+  select,input[type=text]{
+    width:100%;font-size:17px;padding:13px 12px;
+    border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--text);
+    -webkit-appearance:none;appearance:none;
+  }
+  select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7686' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px;}
+
+  .row{display:flex;gap:8px;}
+  .row input{flex:1;}
+  .btn{
+    font-size:16px;font-weight:600;border:none;border-radius:10px;
+    padding:13px 16px;cursor:pointer;color:#fff;background:var(--navy);
+  }
+  .btn:active{opacity:.85;}
+  .btn-teal{background:var(--teal);}
+  .btn-danger{background:var(--red);}
+  .btn-ghost{background:#eef1f6;color:var(--navy);}
+  .btn-block{width:100%;}
+  .btn-sm{padding:9px 12px;font-size:14px;}
+
+  .person-actions{display:flex;gap:8px;margin-top:10px;}
+  .person-actions .btn{flex:1;}
+
+  /* month nav */
+  .monthnav{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .monthnav button{
+    background:var(--navy);color:#fff;border:none;border-radius:10px;
+    width:52px;height:46px;font-size:24px;line-height:1;cursor:pointer;flex:0 0 auto;
+  }
+  .monthnav button:active{background:var(--navy-light);}
+  .monthlabel{flex:1;text-align:center;font-size:19px;font-weight:700;color:var(--navy);text-transform:capitalize;}
+
+  /* day list */
+  .days{margin-top:4px;}
+  .day{
+    display:flex;align-items:center;gap:10px;
+    padding:9px 6px;border-bottom:1px solid var(--line);
+  }
+  .day:last-child{border-bottom:none;}
+  .day.weekend{background:#fafbfd;}
+  .day.today{border-radius:10px;box-shadow:inset 0 0 0 2px var(--teal);}
+  .daynum{
+    flex:0 0 56px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    line-height:1.1;
+  }
+  .daynum .dow{font-size:12px;color:var(--muted);text-transform:uppercase;font-weight:600;}
+  .daynum .dnum{font-size:20px;font-weight:700;color:var(--navy);}
+  .day.weekend .daynum .dow{color:var(--red);}
+  .daybtns{display:flex;gap:8px;flex:1;}
+  .daybtns button{
+    flex:1;border:1.5px solid var(--line);background:#fff;color:var(--muted);
+    border-radius:10px;padding:11px 4px;font-size:14px;font-weight:600;cursor:pointer;
+    min-height:46px;
+  }
+  .daybtns button .ic{display:block;font-size:16px;margin-bottom:1px;}
+  .day[data-state="work"] .b-work{background:var(--green);border-color:var(--green);color:#fff;}
+  .day[data-state="off"] .b-off{background:var(--red);border-color:var(--red);color:#fff;}
+
+  /* summary bar */
+  .totalbar{
+    position:fixed;left:0;right:0;bottom:0;z-index:20;
+    background:var(--card);border-top:1px solid var(--line);
+    padding:10px 14px calc(env(safe-area-inset-bottom) + 10px);
+    box-shadow:0 -2px 10px rgba(20,30,50,.08);
+  }
+  .totalbar .inner{max-width:640px;margin:0 auto;}
+  .result{
+    display:none;gap:10px;margin-bottom:10px;
+  }
+  .result.show{display:flex;}
+  .chip{flex:1;text-align:center;border-radius:10px;padding:8px 4px;color:#fff;}
+  .chip .n{font-size:24px;font-weight:800;display:block;line-height:1.1;}
+  .chip .t{font-size:12px;opacity:.9;}
+  .chip.work{background:var(--green);}
+  .chip.off{background:var(--gray);}
+  .empty{color:var(--muted);text-align:center;padding:20px 10px;font-size:15px;}
+  .toast{
+    position:fixed;left:50%;bottom:120px;transform:translateX(-50%) translateY(10px);
+    background:var(--navy);color:#fff;padding:10px 18px;border-radius:22px;font-size:14px;
+    opacity:0;pointer-events:none;transition:.25s;z-index:40;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="logo">BAI</span><h1>Pointage</h1></div>
+  <p>BAI Étanchéité — suivi des jours travaillés</p>
+</header>
+
+<div class="section">
+  <div class="card">
+    <div class="label">Personne</div>
+    <select id="personSelect" aria-label="Choisir la personne"></select>
+    <div class="person-actions">
+      <button class="btn btn-danger btn-sm" id="delPersonBtn">Supprimer</button>
+    </div>
+    <div class="row" style="margin-top:10px;">
+      <input type="text" id="newPersonName" placeholder="Nom du nouvel employé" autocomplete="off">
+      <button class="btn btn-teal" id="addPersonBtn">Ajouter</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="monthnav">
+      <button id="prevMonth" aria-label="Mois précédent">‹</button>
+      <div class="monthlabel" id="monthLabel">—</div>
+      <button id="nextMonth" aria-label="Mois suivant">›</button>
+    </div>
+    <div class="days" id="daysList"></div>
+  </div>
+</div>
+
+<div class="totalbar">
+  <div class="inner">
+    <div class="result" id="resultBox">
+      <div class="chip work"><span class="n" id="workCount">0</span><span class="t">Travaillé</span></div>
+      <div class="chip off"><span class="n" id="offCount">0</span><span class="t">Pas travaillé</span></div>
+    </div>
+    <button class="btn btn-block" id="totalBtn">Voir le total du mois</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+  var STORE_KEY = "bai_pointage_v1";
+  var MONTHS = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+  var DOW = ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"]; // getDay(): 0=Dim
+
+  // ---- state ----
+  var data = load();               // { people:[names], entries:{ "name|YYYY-MM":{ "1":"work","2":"off",... } } }
+  var current = { person:null, year:0, month:0 }; // month 0-11
+
+  function load(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      if(raw){
+        var o = JSON.parse(raw);
+        if(o && Array.isArray(o.people) && o.entries) return o;
+      }
+    }catch(e){}
+    return { people:[], entries:{} };
+  }
+  function save(){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
+    catch(e){ toast("Erreur de sauvegarde"); }
+  }
+
+  function monthKey(y,m){ return y + "-" + String(m+1).padStart(2,"0"); }
+  function entryKey(person,y,m){ return person + "|" + monthKey(y,m); }
+
+  function getMonthEntry(person,y,m){
+    var k = entryKey(person,y,m);
+    if(!data.entries[k]) data.entries[k] = {};
+    return data.entries[k];
+  }
+
+  // ---- DOM refs ----
+  var personSelect = document.getElementById("personSelect");
+  var newPersonName = document.getElementById("newPersonName");
+  var addPersonBtn = document.getElementById("addPersonBtn");
+  var delPersonBtn = document.getElementById("delPersonBtn");
+  var prevMonth = document.getElementById("prevMonth");
+  var nextMonth = document.getElementById("nextMonth");
+  var monthLabel = document.getElementById("monthLabel");
+  var daysList = document.getElementById("daysList");
+  var totalBtn = document.getElementById("totalBtn");
+  var resultBox = document.getElementById("resultBox");
+  var workCount = document.getElementById("workCount");
+  var offCount = document.getElementById("offCount");
+  var toastEl = document.getElementById("toast");
+
+  var toastTimer = null;
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, 1800);
+  }
+
+  // ---- people ----
+  function renderPeople(){
+    personSelect.innerHTML = "";
+    if(data.people.length === 0){
+      var opt = document.createElement("option");
+      opt.textContent = "Aucune personne";
+      opt.value = "";
+      personSelect.appendChild(opt);
+      personSelect.disabled = true;
+      delPersonBtn.disabled = true;
+      current.person = null;
+      return;
+    }
+    personSelect.disabled = false;
+    delPersonBtn.disabled = false;
+    if(!current.person || data.people.indexOf(current.person) === -1){
+      current.person = data.people[0];
+    }
+    data.people.forEach(function(name){
+      var opt = document.createElement("option");
+      opt.value = name; opt.textContent = name;
+      if(name === current.person) opt.selected = true;
+      personSelect.appendChild(opt);
+    });
+  }
+
+  function addPerson(){
+    var name = (newPersonName.value || "").trim();
+    if(!name){ toast("Entrez un nom"); return; }
+    if(data.people.indexOf(name) !== -1){ toast("Cette personne existe déjà"); return; }
+    data.people.push(name);
+    current.person = name;
+    newPersonName.value = "";
+    save();
+    renderPeople();
+    renderDays();
+    hideResult();
+    toast(name + " ajouté(e)");
+  }
+
+  function delPerson(){
+    if(!current.person) return;
+    if(!confirm("Supprimer « " + current.person + " » et toutes ses données ?")) return;
+    var gone = current.person;
+    data.people = data.people.filter(function(p){ return p !== gone; });
+    // remove that person's entries
+    Object.keys(data.entries).forEach(function(k){
+      if(k.indexOf(gone + "|") === 0) delete data.entries[k];
+    });
+    current.person = data.people[0] || null;
+    save();
+    renderPeople();
+    renderDays();
+    hideResult();
+    toast("Supprimé");
+  }
+
+  // ---- month ----
+  function setMonthLabel(){
+    monthLabel.textContent = MONTHS[current.month] + " " + current.year;
+  }
+  function shiftMonth(delta){
+    var m = current.month + delta;
+    var y = current.year;
+    if(m < 0){ m = 11; y--; }
+    if(m > 11){ m = 0; y++; }
+    current.month = m; current.year = y;
+    renderDays();
+    hideResult();
+  }
+
+  function renderDays(){
+    daysList.innerHTML = "";
+    setMonthLabel();
+    if(!current.person){
+      var e = document.createElement("div");
+      e.className = "empty";
+      e.textContent = "Ajoutez une personne pour commencer.";
+      daysList.appendChild(e);
+      return;
+    }
+    var y = current.year, m = current.month;
+    var daysInMonth = new Date(y, m+1, 0).getDate();
+    var entry = getMonthEntry(current.person, y, m);
+    var now = new Date();
+    var isCurMonth = (now.getFullYear() === y && now.getMonth() === m);
+
+    for(var d=1; d<=daysInMonth; d++){
+      var date = new Date(y, m, d);
+      var dow = date.getDay(); // 0=Dim..6=Sam
+      var isWeekend = (dow === 0 || dow === 6);
+      var state = entry[String(d)] || "";
+
+      var row = document.createElement("div");
+      row.className = "day" + (isWeekend ? " weekend" : "") + (isCurMonth && now.getDate() === d ? " today" : "");
+      if(state) row.setAttribute("data-state", state);
+      row.setAttribute("data-day", d);
+
+      var num = document.createElement("div");
+      num.className = "daynum";
+      num.innerHTML = "<span class='dow'>" + DOW[dow] + "</span><span class='dnum'>" + d + "</span>";
+
+      var btns = document.createElement("div");
+      btns.className = "daybtns";
+      var bWork = document.createElement("button");
+      bWork.className = "b-work";
+      bWork.innerHTML = "<span class='ic'>✓</span>Travaillé";
+      var bOff = document.createElement("button");
+      bOff.className = "b-off";
+      bOff.innerHTML = "<span class='ic'>✕</span>Pas travaillé";
+
+      (function(dayNum){
+        bWork.addEventListener("click", function(){ setDay(dayNum, "work", row); });
+        bOff.addEventListener("click", function(){ setDay(dayNum, "off", row); });
+      })(d);
+
+      btns.appendChild(bWork);
+      btns.appendChild(bOff);
+      row.appendChild(num);
+      row.appendChild(btns);
+      daysList.appendChild(row);
+    }
+  }
+
+  function setDay(day, newState, row){
+    if(!current.person) return;
+    var entry = getMonthEntry(current.person, current.year, current.month);
+    var cur = entry[String(day)] || "";
+    if(cur === newState){
+      // toggle off — recliquer pour annuler
+      delete entry[String(day)];
+      row.removeAttribute("data-state");
+    }else{
+      entry[String(day)] = newState;
+      row.setAttribute("data-state", newState);
+    }
+    save();
+    if(resultBox.classList.contains("show")) computeTotal(); // live update if shown
+  }
+
+  function computeTotal(){
+    var entry = getMonthEntry(current.person, current.year, current.month);
+    var w=0, o=0;
+    Object.keys(entry).forEach(function(k){
+      if(entry[k] === "work") w++;
+      else if(entry[k] === "off") o++;
+    });
+    workCount.textContent = w;
+    offCount.textContent = o;
+    return {w:w,o:o};
+  }
+  function showTotal(){
+    if(!current.person){ toast("Aucune personne sélectionnée"); return; }
+    computeTotal();
+    resultBox.classList.add("show");
+  }
+  function hideResult(){ resultBox.classList.remove("show"); }
+
+  // ---- events ----
+  personSelect.addEventListener("change", function(){
+    current.person = personSelect.value;
+    renderDays();
+    hideResult();
+  });
+  addPersonBtn.addEventListener("click", addPerson);
+  newPersonName.addEventListener("keydown", function(e){ if(e.key === "Enter") addPerson(); });
+  delPersonBtn.addEventListener("click", delPerson);
+  prevMonth.addEventListener("click", function(){ shiftMonth(-1); });
+  nextMonth.addEventListener("click", function(){ shiftMonth(1); });
+  totalBtn.addEventListener("click", showTotal);
+
+  // ---- init ----
+  var t = new Date();
+  current.year = t.getFullYear();
+  current.month = t.getMonth();
+  renderPeople();
+  renderDays();
+})();
+</script>
+</body>
+</html>
